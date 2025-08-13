@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Generator - Buat Ceritamu Sendiri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: #1a202c;
+            transition: all 0.3s ease;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(90deg, #4f46e5, #c471ed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .story-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .story-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: 3px solid #4f46e5;
+            white-space: pre-wrap;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #4f46e5 }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="gradient-bg min-h-screen">
+        <nav class="bg-gray-800 text-white p-4">
+            <div class="container mx-auto flex justify-between items-center">
+                <div class="font-bold text-xl">Story Generator</div>
+                <div id="authButtons" class="space-x-4">
+                    <button id="loginBtn" class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700">Login</button>
+                    <button id="registerBtn" class="px-4 py-2 rounded bg-green-600 hover:bg-green-700">Daftar</button>
+                </div>
+                <div id="userSection" class="hidden">
+                    <span id="usernameDisplay" class="mr-4"></span>
+                    <button id="logoutBtn" class="px-4 py-2 rounded bg-red-600 hover:bg-red-700">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="py-12 px-4 sm:px-6 lg:px-8">
+        <!-- Login Modal -->
+        <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                <h3 class="text-2xl font-bold mb-6">Login</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-1">Username</label>
+                        <input type="text" id="loginUsername" class="w-full px-4 py-2 rounded border">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Password</label>
+                        <input type="password" id="loginPassword" class="w-full px-4 py-2 rounded border">
+                    </div>
+                    <div class="pt-2">
+                        <button id="doLoginBtn" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Login</button>
+                    </div>
+                    <div class="text-center">
+                        <p>Atau login dengan:</p>
+                        <button id="googleLoginBtn" class="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Google</button>
+                    </div>
+                    <p class="text-center">Belum punya akun? <a href="#" id="showRegister" class="text-blue-600">Daftar disini</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Modal -->
+        <div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                <h3 class="text-2xl font-bold mb-6">Daftar Akun</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block mb-1">Username</label>
+                        <input type="text" id="registerUsername" class="w-full px-4 py-2 rounded border">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Email</label>
+                        <input type="email" id="registerEmail" class="w-full px-4 py-2 rounded border">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Password</label>
+                        <input type="password" id="registerPassword" class="w-full px-4 py-2 rounded border">
+                    </div>
+                    <div>
+                        <label class="block mb-1">Konfirmasi Password</label>
+                        <input type="password" id="registerConfirmPassword" class="w-full px-4 py-2 rounded border">
+                    </div>
+                    <div class="pt-2">
+                        <button id="doRegisterBtn" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Daftar</button>
+                    </div>
+                    <p class="text-center">Sudah punya akun? <a href="#" id="showLogin" class="text-blue-600">Login disini</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard Modal -->
+        <div id="adminModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-8 max-w-md w-full">
+                <h3 class="text-2xl font-bold mb-6">Admin Dashboard</h3>
+                <p>Total Akun Terdaftar: <span id="totalAccounts" class="font-bold">0</span></p>
+                <div class="mt-4 pt-4 border-t">
+                    <button id="closeAdminModal" class="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-700">Tutup</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Story Generator</h1>
+                <p class="text-xl text-white opacity-90">Buat ceritamu sendiri</p>
+            </div>
+            
+            <div class="story-card rounded-2xl p-8 mb-12">
+                <div class="mb-8">
+                    <label for="theme" class="block text-lg font-medium text-gray-700 mb-2">Tema Cerita:</label>
+                    <input type="text" id="theme" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Misal: Petualangan di hutan magis...">
+                </div>
+                
+                <div class="mb-8">
+                    <label for="character" class="block text-lg font-medium text-gray-700 mb-2">Karakter Utama:</label>
+                    <input type="text" id="character" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Misal: Seorang anak petualang bernama Andi...">
+                </div>
+                
+                <div class="flex justify-center">
+                    <button id="generateBtn" class="px-8 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 pulse">
+                        Buat Cerita
+                    </button>
+                </div>
+            </div>
+            
+            <div id="resultContainer" class="hidden story-card rounded-2xl p-8">
+                <h2 class="text-2xl font-bold text-center mb-6 text-gradient">Cerita Kamu:</h2>
+                <div id="storyOutput" class="text-gray-700 leading-relaxed"></div>
+                
+                <div class="mt-8 flex justify-center">
+                    <button id="downloadBtn" class="px-6 py-2 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 mr-4">
+                        Unduh Cerita
+                    </button>
+                    <button id="newStoryBtn" class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Cerita Baru
+                    </button>
+                </div>
+            </div>
+            
+            <div id="loading" class="hidden text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600 mb-4"></div>
+                <p class="text-white text-lg">Membuat cerita khusus untukmu...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateBtn = document.getElementById('generateBtn');
+            const themeInput = document.getElementById('theme');
+            const characterInput = document.getElementById('character');
+            const resultContainer = document.getElementById('resultContainer');
+            const storyOutput = document.getElementById('storyOutput');
+            const loading = document.getElementById('loading');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const newStoryBtn = document.getElementById('newStoryBtn');
+            
+            // Contoh database cerita dan twist
+            const storyTemplates = [
+                {
+                    intro: "Pada suatu hari, {character} menemukan diri mereka berada di {theme}. Awalnya semuanya tampak biasa saja, namun...",
+                    twist: "tiba-tiba muncul makhluk misterius yang menawarkan hadiah bertuah dengan syarat menyelesaikan teka-teki."
+                },
+                {
+                    intro: "{character} sedang melakukan perjalanan panjang menuju {theme}. Tanpa diduga...",
+                    twist: "mereka menemukan kota tersembunyi yang tidak terlihat di peta mana pun."
+                },
+                {
+                    intro: "Di tengah malam yang sunyi, {character} mendengar suara aneh dari {theme}. Ketika menyelidiki...",
+                    twist: "mereka menemukan portal ke dunia paralel di mana semua hukum fisika terbalik."
+                },
+                {
+                    intro: "{character} mendapat tugas penting untuk melindungi {theme} dari kekuatan jahat. Namun...",
+                    twist: "ternyata musuh terbesarnya adalah versi alternatif dari diri mereka sendiri."
+                },
+                {
+                    intro: "Dalam mimpi yang sangat nyata, {character} melihat diri mereka berada di {theme}. Saat bangun...",
+                    twist: "mereka membawa benda dari mimpi tersebut yang ternyata memiliki kekuatan magis."
+                }
+            ];
+            
+            const genreDetails = {
+                petualangan: "penuh dengan bahaya dan kejutan menakjubkan",
+                misteri: "penuh dengan teka-teki yang membingungkan",
+                fantasi: "penuh dengan makhluk magis dan sihir",
+                sci_fi: "penuh dengan teknologi canggih dan masa depan",
+                romantis: "penuh dengan kisah cinta yang mengharukan"
+            };
+            
+            // Fungsi untuk membuat cerita format LLM
+            function generateStory(template, theme, character) {
+                // Format template dengan input pengguna
+                let story = template.intro
+                    .replace('{theme}', theme)
+                    .replace('{character}', character);
+                
+                // Tambahkan twist
+                story += " " + template.twist;
+                
+                // Tambahkan detail genre jika terdeteksi
+                const lowerTheme = theme.toLowerCase();
+                for (const [genre, detail] of Object.entries(genreDetails)) {
+                    if (lowerTheme.includes(genre)) {
+                        story += ` Perjalanan ini ${detail}.`;
+                        break;
+                    }
+                }
+                
+                // Tambahkan penutup cerita
+                const endings = [
+                    "Akhirnya, setelah melalui segala rintangan, {character} menemukan kebijaksanaan baru yang mengubah hidup mereka selamanya.",
+                    "Cerita ini mengajarkan kita bahwa terkadang petualangan terbesar justru dimulai dari langkah kecil yang berani.",
+                    "Dan begitulah kisah {character} yang tidak akan pernah terlupakan, menjadi legenda yang diceritakan turun-temurun."
+                ];
+                
+                story += " " + endings[Math.floor(Math.random() * endings.length)].replace('{character}', character);
+                
+                return story;
+            }
+            
+            // Efek typewriter
+            function typeWriter(text, element, speed = 20) {
+                let i = 0;
+                element.innerHTML = '';
+                
+                function type() {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    }
+                }
+                
+                type();
+            }
+            
+            // Generate story saat tombol diklik
+            generateBtn.addEventListener('click', function() {
+                const theme = themeInput.value.trim();
+                const character = characterInput.value.trim();
+                
+                if (!theme || !character) {
+                    alert('Silakan isi tema dan karakter terlebih dahulu!');
+                    return;
+                }
+                
+                // Tampilkan loading
+                loading.classList.remove('hidden');
+                resultContainer.classList.add('hidden');
+                
+                // Simulasikan loading (seperti API call)
+                setTimeout(() => {
+                    // Pilih template acak
+                    const template = storyTemplates[Math.floor(Math.random() * storyTemplates.length)];
+                    
+                    // Generate cerita
+                    const story = generateStory(template, theme, character);
+                    
+                    // Sembunyikan loading, tampilkan hasil
+                    loading.classList.add('hidden');
+                    resultContainer.classList.remove('hidden');
+                    
+                    // Tampilkan cerita dengan efek typewriter
+                    typeWriter(story, storyOutput);
+                }, 2000);
+            });
+            
+            // Download story sebagai text file
+            downloadBtn.addEventListener('click', function() {
+                const story = storyOutput.textContent;
+                const theme = themeInput.value.trim() || 'cerita';
+                
+                const blob = new Blob([story], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${theme.toLowerCase().replace(/\s+/g, '-')}-story.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+            
+            // Reset form untuk cerita baru
+            newStoryBtn.addEventListener('click', function() {
+                themeInput.value = '';
+                characterInput.value = '';
+                storyOutput.textContent = '';
+                resultContainer.classList.add('hidden');
+                
+                // Auto focus ke input pertama
+                themeInput.focus();
+            });
+        });
+
+        // User management system
+        const users = [
+            { username: 'admin', email: 'admin@example.com', password: 'admin123', isAdmin: true }
+        ];
+        
+        let currentUser = null;
+        
+        // Check if user is logged in
+        if (localStorage.getItem('currentUser')) {
+            currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            updateAuthUI();
+        }
+        
+        // Modal controls
+        const loginModal = document.getElementById('loginModal');
+        const registerModal = document.getElementById('registerModal');
+        const adminModal = document.getElementById('adminModal');
+        
+        document.getElementById('loginBtn').addEventListener('click', () => loginModal.classList.remove('hidden'));
+        document.getElementById('registerBtn').addEventListener('click', () => registerModal.classList.remove('hidden'));
+        document.getElementById('showRegister').addEventListener('click', () => {
+            loginModal.classList.add('hidden');
+            registerModal.classList.remove('hidden');
+        });
+        document.getElementById('showLogin').addEventListener('click', () => {
+            registerModal.classList.add('hidden');
+            loginModal.classList.remove('hidden');
+        });
+        document.getElementById('closeAdminModal').addEventListener('click', () => adminModal.classList.add('hidden'));
+        
+        // Close modals when clicking outside
+        [loginModal, registerModal, adminModal].forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Login functionality
+        document.getElementById('doLoginBtn').addEventListener('click', () => {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                loginModal.classList.add('hidden');
+                updateAuthUI();
+            } else {
+                alert('Username atau password salah!');
+            }
+        });
+        
+        // Register functionality
+        document.getElementById('doRegisterBtn').addEventListener('click', () => {
+            const username = document.getElementById('registerUsername').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (!username || !email || !password) {
+                alert('Harap isi semua field!');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Password tidak cocok!');
+                return;
+            }
+            
+            if (users.some(u => u.username === username)) {
+                alert('Username sudah digunakan!');
+                return;
+            }
+            
+            users.push({ username, email, password, isAdmin: false });
+            alert('Pendaftaran berhasil! Silakan login.');
+            registerModal.classList.add('hidden');
+            loginModal.classList.remove('hidden');
+        });
+        
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateAuthUI();
+        });
+        
+        // Google login placeholder
+        document.getElementById('googleLoginBtn').addEventListener('click', () => {
+            alert('Google login akan diimplementasikan dengan Firebase atau OAuth provider sebenarnya');
+        });
+        
+        // Update UI based on auth state
+        function updateAuthUI() {
+            const authButtons = document.getElementById('authButtons');
+            const userSection = document.getElementById('userSection');
+            const usernameDisplay = document.getElementById('usernameDisplay');
+            const adminBtn = document.getElementById('adminBtn');
+            
+            if (currentUser) {
+                authButtons.classList.add('hidden');
+                userSection.classList.remove('hidden');
+                usernameDisplay.textContent = currentUser.username;
+                
+                if (currentUser.isAdmin) {
+                    if (!document.getElementById('adminBtn')) {
+                        const adminBtn = document.createElement('button');
+                        adminBtn.id = 'adminBtn';
+                        adminBtn.className = 'px-4 py-2 rounded bg-purple-600 hover:bg-purple-700 mr-2';
+                        adminBtn.textContent = 'Admin';
+                        adminBtn.addEventListener('click', () => {
+                            document.getElementById('totalAccounts').textContent = users.length;
+                            adminModal.classList.remove('hidden');
+                        });
+                        userSection.insertBefore(adminBtn, document.getElementById('logoutBtn'));
+                    }
+                } else if (document.getElementById('adminBtn')) {
+                    document.getElementById('adminBtn').remove();
+                }
+            } else {
+                authButtons.classList.remove('hidden');
+                userSection.classList.add('hidden');
+            }
+        }
+        
+        // Protect story generation
+        const generateBtn = document.getElementById('generateBtn');
+        generateBtn.addEventListener('click', () => {
+            if (!currentUser) {
+                alert('Silakan login terlebih dahulu untuk membuat cerita!');
+                loginModal.classList.remove('hidden');
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
